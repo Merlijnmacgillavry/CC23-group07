@@ -1,17 +1,11 @@
-import { SegmentedControl, Text, Title, Flex, Group, Button, Stack } from '@mantine/core';
+import { Title, Flex, Group, Button } from '@mantine/core';
 import React from 'react'
 import { useForm } from '@mantine/form';
 import { useCloudStore } from '../providers/CloudStoreProvider'
 import { states } from '../App'
-export const likertOptions =
-    [
-        { label: 'Strongly Disagree', value: '1' },
-        { label: 'Disagree', value: '2' },
-        { label: 'Neutral', value: '3' },
-        { label: 'Agree', value: '4' },
-        { label: 'Strongly Agree', value: '5' },
-    ]
-
+import LikertQuestion from '../utils/Question'
+import { notifications } from '@mantine/notifications'
+import { IconCheck, IconX } from '@tabler/icons-react'
 
 export default function IntakeSurvey({ setCurrentState }) {
 
@@ -33,7 +27,35 @@ export default function IntakeSurvey({ setCurrentState }) {
     });
 
     function completeIntakeSurvey(values) {
-        cloudStore.saveSurvey(values).then(() => console.log('saved survey')).catch((error) => console.log(error))
+        notifications.show({
+            id: 'saving-intake-survey',
+            title: 'Saving intake survey',
+            message: 'Please wait...',
+            loading: true,
+            autoClose: false,
+        })
+        cloudStore.saveSurvey(values, 'intakeSurvey').then(() => {
+            console.log('saved intake survey')
+            notifications.update('saving-intake-survey', {
+                title: 'Saved intake survey',
+                loading: false,
+                icon: <IconCheck size="1rem" />,
+                color: 'green',
+                autoClose: 2000,
+            })
+
+        }).catch((error) => {
+            console.log(error)
+            notifications.update('saving-intake-survey', {
+                title: 'Error saving intake survey',
+                message: 'Please try again',
+                loading: false,
+                color: 'red',
+                icon: <IconX size="1rem" />,
+                autoClose: 2000,
+            }
+            )
+        })
         setCurrentState(states.MainTask)
     }
 
@@ -55,13 +77,3 @@ export default function IntakeSurvey({ setCurrentState }) {
     )
 }
 
-function LikertQuestion({ form, question }) {
-    return (
-        <div>
-            <Text fw={700} ta={'left'} my='sm'>{question}</Text>
-            <SegmentedControl
-                data={likertOptions}
-                {...form.getInputProps(question)}
-            />
-        </div>)
-}

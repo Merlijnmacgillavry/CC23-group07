@@ -3,6 +3,10 @@ import { Group, Header, Image, RingProgress, Text, Title, AspectRatio, Divider, 
 import getTasks from '../utils/getTasks';
 import { useEffect } from 'react';
 import Youtube from 'react-youtube';
+import { states } from '../App'
+import { useCloudStore } from '../providers/CloudStoreProvider';
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 export const explicitCategories = [
     'Sex',
@@ -11,40 +15,78 @@ export const explicitCategories = [
     'Language'
 ]
 
-export default function MainTask() {
-    const buttonColors = pickRandomColors();
+export default function MainTask({ setCurrentState }) {
+    const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
+    const [categories, setCategories] = React.useState(explicitCategories);
     const [currentTask, setCurrentTask] = React.useState(0);
     const [tasks, setTasks] = React.useState([]);
     const [player, setPlayer] = React.useState(null);
     const [reports, setReports] = React.useState([]);
 
+    const cloudStore = useCloudStore();
+
     useEffect(() => {
         getTasks().then((tasks) => {
-            console.log(tasks)
             setTasks(tasks);
         }).catch((error) => {
             console.log(error);
         });
     }, []);
 
-    useEffect(() => {
-        console.log(reports)
-    }, [reports])
+    // useEffect(() => {
+    //     // console.log(reports)
+    // }, [reports])
 
 
     let opts = {
-        height: '390',
-        width: '640',
+        height: '100%',
+        width: '100%',
         playerVars: {
             // https://developers.google.com/youtube/player_parameters
             autoplay: 1,
+            controls: 0,
+            modestbranding: 1,
         },
     }
 
     function nextTask() {
-        console.log("next task"
-        )
+        if (currentTask + 1 === tasks.length) {
+            setCurrentTask(0);
+            notifications.show({
+                id: 'saving-reports',
+                title: 'Saving reports',
+                message: 'Please wait...',
+                loading: true,
+                autoClose: false,
+            })
+            cloudStore.saveReports(reports).then(() => {
+                console.log('saved reports')
+                notifications.update('saving-reports', {
+                    title: 'Saved reports',
+                    loading: false,
+                    icon: <IconCheck size="1rem" />,
+                    color: 'green',
+                    autoClose: 2000,
+                })
+
+                setCurrentState(states.ExitSurvey)
+            }).catch((error) => {
+                console.log(error)
+                notifications.update('saving-reports', {
+                    title: 'Error saving reports',
+                    message: 'Please try again',
+                    loading: false,
+                    color: 'red',
+                    icon: <IconX size="1rem" />,
+                    autoClose: 2000,
+                })
+            })
+
+        }
+        setButtonColors(pickRandomColors());
+        setCategories(shuffleArray(explicitCategories));
         setCurrentTask(currentTask + 1);
+        player.loadVideoById(tasks[currentTask + 1]?.[3], 0, "large")
     }
 
     async function getCurrentTimeStampOfVideo() {
@@ -62,6 +104,14 @@ export default function MainTask() {
     }
 
     function reportExplicitContent(videoId, explicitCategory) {
+        notifications.show({
+            id: 'reporting',
+            title: 'Reporting',
+            message: `You reported ${explicitCategory} content`,
+            icon: <IconCheck size="1rem" />,
+            color: 'green',
+            autoClose: 2000,
+        })
         getCurrentTimeStampOfVideo().then((time) => {
             const data = {
                 videoId: videoId,
@@ -85,7 +135,7 @@ export default function MainTask() {
                 <Group>
                     <Text color={'pink.4'} weight='700' >Completion: </Text>
                     <RingProgress size={80} thickness={6}
-                        sections={[{ value: 40, color: 'pink.4', }]}
+                        sections={[{ value: ((currentTask + 1) / tasks.length * 100), color: 'pink.4', }]}
                         label={
                             <Text color="pink.4" weight={700} align="center" size="sm">
                                 {currentTask + 1}/{tasks.length}
@@ -104,11 +154,11 @@ export default function MainTask() {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                 /> */}
-                <Youtube videoId={tasks[currentTask]?.[3]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
+                <Youtube width='100%' videoId={tasks[currentTask]?.[3]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
             </AspectRatio>
             {/* <Divider py={'sm'} /> */}
-            <Group py={'md'}>
-                {shuffleArray(explicitCategories).map((category, index) => {
+            <Group position='left' py={'sm'}>
+                {categories.map((category, index) => {
                     return (
                         <Button
                             key={category}
@@ -127,8 +177,10 @@ export default function MainTask() {
                     radius="md"
                     size="lg"
                     style={{ margin: '5px' }}
-                    onClick={nextTask}
-                />
+                    onClick={() => reportExplicitContent(tasks[currentTask]?.[0], 'Trigger')}
+                >
+                    Trigger
+                </Button>
             </Group>
         </>
     )

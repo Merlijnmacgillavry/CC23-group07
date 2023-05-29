@@ -8,6 +8,7 @@ import { useSession } from './providers/SessionProvider'
 import Instructions from './pages/Instructions'
 import { useEffect } from 'react'
 import CloudStoreProvider from './providers/CloudStoreProvider'
+import { Notifications } from '@mantine/notifications'
 
 export const states = {
   Instructions: 'Instructions',
@@ -24,7 +25,6 @@ function App() {
   const { user, createUser } = useSession()
 
   useEffect(() => {
-    console.log(user)
     if (user) setCurrentState(user.state)
   }, [user])
 
@@ -43,9 +43,9 @@ function App() {
       case states.IntakeSurvey:
         return <IntakeSurvey setCurrentState={setCurrentState} />
       case states.MainTask:
-        return <MainTask />
+        return <MainTask setCurrentState={setCurrentState} />
       case states.ExitSurvey:
-        return <ExitSurvey />
+        return <ExitSurvey setCurrentState={setCurrentState} />
       default:
         return <Instructions />
     }
@@ -54,7 +54,7 @@ function App() {
   return (
     <>
       <CloudStoreProvider>
-
+        <Notifications />
         {renderState()}
       </CloudStoreProvider>
     </>

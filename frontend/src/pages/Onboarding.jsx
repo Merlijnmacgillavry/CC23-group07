@@ -4,7 +4,8 @@ import { useForm } from '@mantine/form';
 import { Button, Group, Text, Title, Modal, Flex, Paper, List, TextInput } from '@mantine/core'
 import { states } from '../App'
 import { useSession } from '../providers/SessionProvider'
-
+import { notifications } from '@mantine/notifications'
+import { IconCheck } from '@tabler/icons-react'
 export default function Onboarding({ setCurrentState }) {
 
     const { createUser, user } = useSession()
@@ -22,6 +23,12 @@ export default function Onboarding({ setCurrentState }) {
     });
 
     function completeOnboarding(values) {
+        notifications.show({
+            id: 'saving-onboarding',
+            title: `Welcome ${values.display_name}!`,
+            icon: <IconCheck size="1rem" />,
+            autoClose: 2000,
+        })
         createUser(values.user_code, values.display_name, states.IntakeSurvey)
         setCurrentState(states.IntakeSurvey)
     }
