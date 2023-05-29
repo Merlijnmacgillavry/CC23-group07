@@ -1,6 +1,8 @@
-import { SegmentedControl, Title, Flex, Group, Button, Stack } from '@mantine/core';
+import { SegmentedControl, Text, Title, Flex, Group, Button, Stack } from '@mantine/core';
 import React from 'react'
 import { useForm } from '@mantine/form';
+import { useCloudStore } from '../providers/CloudStoreProvider'
+import { states } from '../App'
 export const likertOptions =
     [
         { label: 'Strongly Disagree', value: '1' },
@@ -11,8 +13,9 @@ export const likertOptions =
     ]
 
 
-export default function IntakeSurvey() {
+export default function IntakeSurvey({ setCurrentState }) {
 
+    const cloudStore = useCloudStore()
 
 
     const form = useForm({
@@ -28,32 +31,21 @@ export default function IntakeSurvey() {
 
         }
     });
+
+    function completeIntakeSurvey(values) {
+        cloudStore.saveSurvey(values).then(() => console.log('saved survey')).catch((error) => console.log(error))
+        setCurrentState(states.MainTask)
+    }
+
+
     return (
         <>
             <Title order={1}>Intake Survey</Title>
-            <form onSubmit={form.onSubmit((values) => completeOnboarding(values))}>
+            <form onSubmit={form.onSubmit((values) => completeIntakeSurvey(values))}>
                 <Flex direction='column' align='center' justify='center' mih={'80vh'} gap={20}>
-                    <SegmentedControl
-                        data={likertOptions}
-                        label='I am confident in my ability to complete this task'
-                        {...form.getInputProps('question_1')}
-                    />
-                    <SegmentedControl
-                        data={likertOptions}
-                        {...form.getInputProps('question_2')}
-                    />
-                    <SegmentedControl
-                        data={likertOptions}
-                        {...form.getInputProps('question_3')}
-                    />
-                    <SegmentedControl
-                        data={likertOptions}
-                        {...form.getInputProps('question_4')}
-                    />
-                    <SegmentedControl
-                        data={likertOptions}
-                        {...form.getInputProps('question_5')}
-                    />
+                    {Object.keys(form.values).map((question, index) => {
+                        return (<LikertQuestion key={index} form={form} question={question} />)
+                    })}
                     <Group position="right" mt="md">
                         <Button type="submit">Start work</Button>
                     </Group>
@@ -61,4 +53,15 @@ export default function IntakeSurvey() {
             </form>
         </>
     )
+}
+
+function LikertQuestion({ form, question }) {
+    return (
+        <div>
+            <Text fw={700} ta={'left'} my='sm'>{question}</Text>
+            <SegmentedControl
+                data={likertOptions}
+                {...form.getInputProps(question)}
+            />
+        </div>)
 }

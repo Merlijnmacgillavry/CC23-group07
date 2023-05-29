@@ -1,7 +1,6 @@
 import React from 'react'
 
-export default function LikertQuestion
-    () {
+export default function LikertQuestion({ form, question }) {
     return (
         <div>
 

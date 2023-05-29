@@ -7,6 +7,7 @@ import ExitSurvey from './pages/ExitSurvey'
 import { useSession } from './providers/SessionProvider'
 import Instructions from './pages/Instructions'
 import { useEffect } from 'react'
+import CloudStoreProvider from './providers/CloudStoreProvider'
 
 export const states = {
   Instructions: 'Instructions',
@@ -40,7 +41,7 @@ function App() {
       case states.Onboarding:
         return <Onboarding setCurrentState={setCurrentState} />
       case states.IntakeSurvey:
-        return <IntakeSurvey />
+        return <IntakeSurvey setCurrentState={setCurrentState} />
       case states.MainTask:
         return <MainTask />
       case states.ExitSurvey:
@@ -52,7 +53,10 @@ function App() {
 
   return (
     <>
-      {renderState()}
+      <CloudStoreProvider>
+
+        {renderState()}
+      </CloudStoreProvider>
     </>
 
   )
