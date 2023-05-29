@@ -9,3 +9,7 @@ cd frontend
 npm install
 npm run dev
 ```
+
+# Styling
+Currently we use http://mantine.dev for styling.
+
