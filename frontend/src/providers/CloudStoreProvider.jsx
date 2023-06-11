@@ -12,7 +12,8 @@ export default function CloudStoreProvider(props) {
     async function saveReports(reports) {
         // save tasks to firestore
         try {
-            const reportsRef = doc(db, 'users', sessionContext.user.user_code, 'reports', 'reports')
+            const reportsRef = doc(db, 'reports', sessionContext.user.user_code)
+            console.log(reports)
             await setDoc(reportsRef, {
                 reports: reports.map((task) => ({ ...task }))
             }

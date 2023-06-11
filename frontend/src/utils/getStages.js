@@ -29,7 +29,7 @@ function getTasksForStage(stageId, tasks) {
 
 export default getStages;
 
-const StageTypes = {
+export const StageTypes = {
     BaseLine: 'BaseLine',
     ChatAfter: 'ChatAfter',
     ChatDuring: 'ChatDuring',

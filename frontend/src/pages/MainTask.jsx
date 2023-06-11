@@ -10,6 +10,7 @@ import { notifications } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { Timer } from '../utils/timer';
 import Chat from '../utils/Chat';
+import { StageTypes } from '../utils/getStages';
 export const explicitCategories = [
     'Sex',
     'Violence',
@@ -31,7 +32,7 @@ export function Ready({ startStage }) {
     )
 }
 
-export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExplicitContent }) {
+export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExplicitContent, stages, currentStage }) {
     const [categories, setCategories] = React.useState(explicitCategories);
     const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
 
@@ -84,16 +85,17 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                 </Group>
             </div>
             <div className="right">
-                <Chat />
+                {stages[currentStage].type === StageTypes.ChatDuring && <Chat stage={'ChatDuring'} />}
             </div>
         </div>
     )
 }
 
-export function Idle({ endStage }) {
+export function Idle({ endStage, stages, currentStage }) {
     return (
         <Group position="center" direction="column" spacing="lg">
             <Title order={1}>Idle</Title>
+            {stages[currentStage].type === StageTypes.ChatAfter && <Chat stage={'ChatAfter'} />}
             <Button onClick={endStage}>End</Button>
         </Group>
     )
@@ -239,9 +241,9 @@ export default function MainTask({ setCurrentState }) {
             case stageModes.Ready:
                 return <Ready startStage={() => startStage()} />
             case stageModes.Tasks:
-                return <Tasks tasks={stages[currentStage].tasks} nextTask={() => nextTask()} currentTask={currentTask} registerPlayer={registerPlayer} reportExplicitContent={reportExplicitContent} />
+                return <Tasks tasks={stages[currentStage].tasks} nextTask={() => nextTask()} currentTask={currentTask} registerPlayer={registerPlayer} reportExplicitContent={reportExplicitContent} stages={stages} currentStage={currentStage} />
             case stageModes.Idle:
-                return <Idle endStage={() => endStage()} />
+                return <Idle endStage={() => endStage()} stages={stages} currentStage={currentStage} />
             default:
                 return <Idle endStage={() => endStage()} />
         }

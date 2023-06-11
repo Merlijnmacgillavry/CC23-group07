@@ -81,11 +81,10 @@ button:focus-visible {
   gap: 1em;
 }
 .task .left{
-  flex: 80%;
+  flex: 75%;
 }
 .task .right{
-  flex: 20%;
+  flex: 25%;
   border-radius: 1em;
-  background-color: #646cff;
 
 }
