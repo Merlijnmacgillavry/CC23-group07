@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 
 async function getTasks() {
@@ -15,3 +14,17 @@ async function getTasks() {
 }
 
 export default getTasks;
+
+const StageTypes = {
+    BaseLine: 'BaseLine',
+    ChatAfter: 'ChatAfter',
+    ChatDuring: 'ChatDuring',
+}
+
+class Stage {
+    constructor(id, type, timeLimit) {
+        this.id = id;
+        this.type = type;
+        this.timeLimit = timeLimit;
+    }
+}

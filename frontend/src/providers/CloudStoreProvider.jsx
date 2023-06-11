@@ -22,7 +22,6 @@ export default function CloudStoreProvider(props) {
             console.log(error)
             throw error
         }
-
     }
 
     async function saveSurvey(survey, surveyType) {

@@ -40,12 +40,8 @@ function App() {
         return <Instructions setCurrentState={setCurrentState} />
       case states.Onboarding:
         return <Onboarding setCurrentState={setCurrentState} />
-      case states.IntakeSurvey:
-        return <IntakeSurvey setCurrentState={setCurrentState} />
       case states.MainTask:
         return <MainTask setCurrentState={setCurrentState} />
-      case states.ExitSurvey:
-        return <ExitSurvey setCurrentState={setCurrentState} />
       default:
         return <Instructions />
     }

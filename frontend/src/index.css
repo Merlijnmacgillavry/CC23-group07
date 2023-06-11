@@ -67,3 +67,25 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.timer{
+  display: flex;
+  gap: 0.5rem;
+}
+.timer .box{
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.task{
+  display: flex;
+  gap: 1em;
+}
+.task .left{
+  flex: 80%;
+}
+.task .right{
+  flex: 20%;
+  border-radius: 1em;
+  background-color: #646cff;
+
+}

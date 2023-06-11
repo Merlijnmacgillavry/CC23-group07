@@ -14,11 +14,13 @@ export default function Onboarding({ setCurrentState }) {
         initialValues: {
             user_code: '',
             display_name: '',
+            session_code: '',
         },
 
         validate: {
             user_code: (value) => (value !== '' ? null : 'User code cannot be empty!'),
             display_name: (value) => (value !== '' ? null : 'Name cannot be empty!'),
+            session_code: (value) => (value !== '' ? null : 'Session code cannot be empty!'),
         }
     });
 
@@ -29,8 +31,8 @@ export default function Onboarding({ setCurrentState }) {
             icon: <IconCheck size="1rem" />,
             autoClose: 2000,
         })
-        createUser(values.user_code, values.display_name, states.IntakeSurvey)
-        setCurrentState(states.IntakeSurvey)
+        createUser(values.user_code, values.display_name, values.session_code, states.MainTask)
+        setCurrentState(states.MainTask)
     }
 
     return (
@@ -39,7 +41,7 @@ export default function Onboarding({ setCurrentState }) {
                 <form onSubmit={form.onSubmit((values) => completeOnboarding(values))}>
                     <TextInput
                         withAsterisk
-                        label="Usercode"
+                        label="User Code"
                         placeholder="123456"
                         {...form.getInputProps('user_code')}
                     />
@@ -48,6 +50,12 @@ export default function Onboarding({ setCurrentState }) {
                         label="Display Name"
                         placeholder="John Doe"
                         {...form.getInputProps('display_name')}
+                    />
+                    <TextInput
+                        withAsterisk
+                        label="Session Code"
+                        placeholder="123456"
+                        {...form.getInputProps('session_code')}
                     />
                     <Group position="right" mt="md">
                         <Button type="submit">Start work</Button>

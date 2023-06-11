@@ -1,13 +1,15 @@
 import React from 'react'
 import { Group, Header, Image, RingProgress, Text, Title, AspectRatio, Divider, Button } from '@mantine/core'
 import getTasks from '../utils/getTasks';
+import getStages from '../utils/getStages';
 import { useEffect } from 'react';
 import Youtube from 'react-youtube';
 import { states } from '../App'
 import { useCloudStore } from '../providers/CloudStoreProvider';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons-react';
-
+import { Timer } from '../utils/timer';
+import Chat from '../utils/Chat';
 export const explicitCategories = [
     'Sex',
     'Violence',
@@ -15,45 +17,131 @@ export const explicitCategories = [
     'Language'
 ]
 
-export default function MainTask({ setCurrentState }) {
-    const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
+const stageModes = {
+    Ready: 'Ready',
+    Tasks: 'Tasks',
+    Idle: 'Idle',
+}
+export function Ready({ startStage }) {
+    return (
+        <Group position="center" direction="column" spacing="lg">
+            <Title order={1}>Ready?</Title>
+            <Button onClick={startStage}>Start</Button>
+        </Group>
+    )
+}
+
+export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExplicitContent }) {
     const [categories, setCategories] = React.useState(explicitCategories);
-    const [currentTask, setCurrentTask] = React.useState(0);
-    const [tasks, setTasks] = React.useState([]);
-    const [player, setPlayer] = React.useState(null);
-    const [reports, setReports] = React.useState([]);
+    const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
 
-    const cloudStore = useCloudStore();
-
-    useEffect(() => {
-        getTasks().then((tasks) => {
-            setTasks(tasks);
-        }).catch((error) => {
-            console.log(error);
-        });
-    }, []);
-
-    // useEffect(() => {
-    //     // console.log(reports)
-    // }, [reports])
-
+    let currentTaskIndex = currentTask % 3;
 
     let opts = {
         height: '100%',
         width: '100%',
         playerVars: {
             // https://developers.google.com/youtube/player_parameters
-            // autoplay: 1,
+            autoplay: 1,
             controls: 0,
             // modestbranding: 1,
-            origin: "https://www.youtube.com", 
+            origin: "https://www.youtube.com",
             playsInline: 1
         },
     }
 
+    return (
+        <div className='task'>
+            <div className='left'>
+                <Title order={2} color='pink.4' ta={'left'} mb='md'>{tasks[currentTaskIndex]?.[2]} - {tasks[currentTaskIndex]?.[3]}</Title>
+                <AspectRatio ratio={16 / 9}  >
+                    <Youtube width='100%' videoId={tasks[currentTaskIndex]?.[4]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
+                </AspectRatio>
+                <Group position='left' py={'sm'}>
+                    {categories.map((category, index) => {
+                        return (
+                            <Button
+                                key={category}
+                                color={buttonColors[index]}
+                                radius="md"
+                                size="lg"
+                                style={{ margin: '5px' }}
+                                onClick={() => reportExplicitContent(tasks[currentTask]?.[0], category)}
+                            >
+                                {category}
+                            </Button>
+                        )
+                    })}
+                    <Button
+                        color={'pink'}
+                        radius="md"
+                        size="lg"
+                        style={{ margin: '5px' }}
+                        onClick={() => reportExplicitContent(tasks[currentTask]?.[0], 'Trigger')}
+                    >
+                        Trigger
+                    </Button>
+                </Group>
+            </div>
+            <div className="right">
+                <Chat />
+            </div>
+        </div>
+    )
+}
+
+export function Idle({ endStage }) {
+    return (
+        <Group position="center" direction="column" spacing="lg">
+            <Title order={1}>Idle</Title>
+            <Button onClick={endStage}>End</Button>
+        </Group>
+    )
+}
+
+export default function MainTask({ setCurrentState }) {
+    const [stages, setStages] = React.useState([]);
+    const [currentStage, setCurrentStage] = React.useState(0);
+    const [currentTask, setCurrentTask] = React.useState(0);
+    const [mode, setMode] = React.useState(stageModes.Ready);
+    const [stageDeadline, setStageDeadline] = React.useState(null);
+
+    const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
+    const [categories, setCategories] = React.useState(explicitCategories);
+    const [player, setPlayer] = React.useState(null);
+    const [reports, setReports] = React.useState([]);
+    const cloudStore = useCloudStore();
+
+
+    useEffect(() => {
+        getStages().then((stages) => {
+            setStages(stages);
+            console.log(stages)
+        }).catch((error) => {
+            console.log(error);
+        });
+    }, []);
+
+    function startStage() {
+        let currentDate = new Date();
+        currentDate.setMinutes(currentDate.getMinutes() + parseInt((stages[currentStage].timeLimit)))
+        setStageDeadline(currentDate);
+        setMode(stageModes.Tasks);
+        console.log("start stage", stages[currentStage].tasks[0][0])
+        setCurrentTask(parseInt(stages[currentStage].tasks[0][0]) - 1);
+    }
+
+    function endTasks() {
+        setMode(stageModes.Idle);
+    }
+
+
+
     function nextTask() {
-        if (currentTask + 1 === tasks.length) {
-            setCurrentTask(0);
+        const tasks = stages[currentStage].tasks;
+        console.log(tasks)
+        console.log(currentTask)
+        if ((currentTask % 3) + 1 === tasks.length) {
             notifications.show({
                 id: 'saving-reports',
                 title: 'Saving reports',
@@ -71,7 +159,6 @@ export default function MainTask({ setCurrentState }) {
                     autoClose: 2000,
                 })
 
-                setCurrentState(states.ExitSurvey)
             }).catch((error) => {
                 console.log(error)
                 notifications.update('saving-reports', {
@@ -83,12 +170,12 @@ export default function MainTask({ setCurrentState }) {
                     autoClose: 2000,
                 })
             })
-
+            endTasks();
         }
         setButtonColors(pickRandomColors());
         setCategories(shuffleArray(explicitCategories));
         setCurrentTask(currentTask + 1);
-        player.loadVideoById(tasks[currentTask + 1]?.[3], 0, "large")
+        player.loadVideoById(tasks[currentTask + 1]?.[4], 0, "large")
     }
 
     async function getCurrentTimeStampOfVideo() {
@@ -100,12 +187,28 @@ export default function MainTask({ setCurrentState }) {
             return "-1"
         }
     }
+    function endStage() {
+        if (currentStage + 1 === stages.length) {
+            setCurrentState(states.Instructions)
+        }
+        setCurrentStage(currentStage + 1);
+        setMode(stageModes.Ready)
+        setStageDeadline(null);
+    }
+
+    function timeUp() {
+        console.log('time up')
+        endStage()
+        notifications.show({
+            title: 'Time up!',
+            message: 'Time is up for this stage',
+            color: 'orange',
+            icon: <IconX />,
+            autoClose: 5000,
+        });
+    }
 
     function registerPlayer(event) {
-        // console.log(event.target.getPlayerState())
-        // if(event.target.getPlayerState() === -1){
-        //     event.target.playVideo()
-        // }
         setPlayer(event.target)
     }
 
@@ -131,66 +234,61 @@ export default function MainTask({ setCurrentState }) {
 
     }
 
+    function renderMode() {
+        switch (mode) {
+            case stageModes.Ready:
+                return <Ready startStage={() => startStage()} />
+            case stageModes.Tasks:
+                return <Tasks tasks={stages[currentStage].tasks} nextTask={() => nextTask()} currentTask={currentTask} registerPlayer={registerPlayer} reportExplicitContent={reportExplicitContent} />
+            case stageModes.Idle:
+                return <Idle endStage={() => endStage()} />
+            default:
+                return <Idle endStage={() => endStage()} />
+        }
+    }
+
+
 
 
     return (
         <>
             <div className='header' >
-                <Image src="./logo.svg" width={60} height={60} />
-                <Title order={1} color='pink.4' >CoCoMo</Title>
                 <Group>
-                    <Text color={'pink.4'} weight='700' >Completion: </Text>
+                    <Text color={'pink.4'} weight='700' >Stage: </Text>
                     <RingProgress size={80} thickness={6}
-                        sections={[{ value: ((currentTask + 1) / tasks.length * 100), color: 'pink.4', }]}
+                        sections={[{ value: (((currentStage + 1)) / stages.length * 100), color: 'pink.4', }]}
                         label={
                             <Text color="pink.4" weight={700} align="center" size="sm">
-                                {currentTask + 1}/{tasks.length}
+                                {currentStage + 1}/{stages.length}
                             </Text>
                         }
                     />
+                    {stageDeadline &&
+                        <Timer deadline={stageDeadline} timeUp={timeUp} />
+                    }
                 </Group>
+                <Title order={1} color='pink.4' >CoCoMo</Title>
+                {stages.length > 0 &&
+                    <Group>
+                        <Text color={'pink.4'} weight='700' >Completion: </Text>
+                        <RingProgress size={80} thickness={6}
+                            sections={[{ value: ((currentTask) % 3 / stages[currentStage].tasks.length * 100), color: 'pink.4', }]}
+                            label={
+                                <Text color="pink.4" weight={700} align="center" size="sm">
+                                    {(currentTask) % 3}/{stages[currentStage].tasks.length}
+                                </Text>
+                            }
+                        />
+                    </Group>
+                }
             </div>
-            {/* <Divider py={'sm'} /> */}
-            <Title order={2} color='pink.4' ta={'left'} mb='md'>{tasks[currentTask]?.[1]} - {tasks[currentTask]?.[2]}</Title>
-            <AspectRatio ratio={16 / 9} maw={'75%'}  >
-                {/* <iframe
-                    src={tasks[currentTask]?.[3]}
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                /> */}
-                <Youtube width='100%' videoId={tasks[currentTask]?.[3]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
-            </AspectRatio>
-            {/* <Divider py={'sm'} /> */}
-            <Group position='left' py={'sm'}>
-                {categories.map((category, index) => {
-                    return (
-                        <Button
-                            key={category}
-                            color={buttonColors[index]}
-                            radius="md"
-                            size="lg"
-                            style={{ margin: '5px' }}
-                            onClick={() => reportExplicitContent(tasks[currentTask]?.[0], category)}
-                        >
-                            {category}
-                        </Button>
-                    )
-                })}
-                <Button
-                    color={'pink'}
-                    radius="md"
-                    size="lg"
-                    style={{ margin: '5px' }}
-                    onClick={() => reportExplicitContent(tasks[currentTask]?.[0], 'Trigger')}
-                >
-                    Trigger
-                </Button>
-            </Group>
+            <div className='main' >
+                {renderMode()}
+            </div>
         </>
     )
 }
+
 
 function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
