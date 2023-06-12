@@ -38,6 +38,7 @@ export default function Onboarding({ setCurrentState }) {
     return (
         <>
             <Flex direction='column' align='center' justify='center' mih={'80vh'} gap={20}>
+                <Title order={1}>Onboarding</Title>
                 <form onSubmit={form.onSubmit((values) => completeOnboarding(values))}>
                     <TextInput
                         withAsterisk
