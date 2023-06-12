@@ -14,9 +14,10 @@ jobs:
       - run: npm ci && npm run build
         working-directory: ./frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
-        working-directory: ./frontend
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CC23_GROUP07 }}'
           channelId: live
           projectId: cc23-group07
+          entryPoint: './frontend'
+
