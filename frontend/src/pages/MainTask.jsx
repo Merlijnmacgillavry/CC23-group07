@@ -121,7 +121,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                             </Button>
                         )
                     })}
-                    <Button
+                    {/* <Button
                         color={'pink'}
                         radius="md"
                         size="lg"
@@ -129,7 +129,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                         onClick={() => reportExplicitContent(tasks[currentTask]?.[0], 'Trigger')}
                     >
                         Trigger
-                    </Button>
+                    </Button> */}
                 </Group>
             </div>
             <div className="right">
