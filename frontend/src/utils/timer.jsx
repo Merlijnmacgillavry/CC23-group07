@@ -5,11 +5,17 @@ const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
 
-export const Timer = ({ deadline = new Date().toString(), timeUp }) => {
+export const Timer = ({ deadline = new Date().toString(), timeUp, startBreak }) => {
     const parsedDeadline = useMemo(() => Date.parse(deadline), [deadline]);
     const [time, setTime] = useState(parsedDeadline - Date.now());
 
+
+
     useEffect(() => {
+        const breakTime = 5
+        if (time >= 0 && time <= 5 * MINUTE) {
+            startBreak()
+        }
         if (time <= 0) {
             timeUp()
         }

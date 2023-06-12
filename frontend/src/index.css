@@ -88,3 +88,7 @@ button:focus-visible {
   border-radius: 1em;
 
 }
+.messages{
+  min-height: 400px;
+  padding: 0.5em;
+}

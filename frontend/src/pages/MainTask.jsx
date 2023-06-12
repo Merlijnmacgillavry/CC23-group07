@@ -141,11 +141,17 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
 
 export function Idle({ endStage, stages, currentStage }) {
     return (
-        <Group position="center" direction="column" spacing="lg">
-            <Title order={1}>Idle</Title>
-            {stages[currentStage].type === StageTypes.ChatAfter && <Chat stage={'ChatAfter'} />}
-            <Button onClick={endStage}>End</Button>
-        </Group>
+        <Flex position="center" align={'center'} gap={'1em'} direction="column" spacing="lg">
+            <Title order={1} w>Break Time!</Title>
+            {stages[currentStage].type === StageTypes.ChatAfter ?
+                <>
+                    <Text>You can discuss your feelings with your colleagues</Text>
+                    <Chat stage={'ChatAfter'} />
+                </> :
+                <Text>You can rest a little before starting the next stage.</Text>
+            }
+            <Button maw={'25%'} onClick={endStage}>End</Button>
+        </Flex>
     )
 }
 
@@ -157,7 +163,6 @@ export default function MainTask({ setCurrentState }) {
     const [currentTask, setCurrentTask] = React.useState(0);
     const [mode, setMode] = React.useState(stageModes.Ready);
     const [stageDeadline, setStageDeadline] = React.useState(null);
-
     const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
     const [categories, setCategories] = React.useState(explicitCategories);
     const [player, setPlayer] = React.useState(null);
@@ -221,9 +226,21 @@ export default function MainTask({ setCurrentState }) {
         setMode(stageModes.Ready)
         setStageDeadline(null);
     }
+    function startBreak() {
+        if (mode !== stageModes.Idle) {
+            notifications.show({
+                title: 'Break time!',
+                message: 'It is time for a break',
+                color: 'green',
+                icon: <IconX />,
+                autoClose: 5000,
+            });
+
+            setMode(stageModes.Idle)
+        }
+    }
 
     function timeUp() {
-        console.log('time up')
         endStage()
         notifications.show({
             title: 'Time up!',
@@ -313,7 +330,7 @@ export default function MainTask({ setCurrentState }) {
                         }
                     />
                     {stageDeadline &&
-                        <Timer deadline={stageDeadline} timeUp={timeUp} />
+                        <Timer deadline={stageDeadline} timeUp={timeUp} startBreak={startBreak} />
                     }
                 </Group>
                 <Title order={1} color='pink.4' >CoCoMo</Title>
