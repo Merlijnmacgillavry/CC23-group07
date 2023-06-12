@@ -104,7 +104,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                     </Group>
                 </Flex>
                 <AspectRatio ratio={16 / 9}  >
-                    <Youtube width='100%' videoId={tasks[currentTaskIndex]?.[4]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
+                    <Youtube width='100%' videoId={tasks[currentTaskIndex]?.[4]} opts={opts} onError={(event) => nextTask} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
                 </AspectRatio>
                 <Group position='left' py={'sm'}>
                     {Object.entries(categories).map(([k, v], index) => {

@@ -59,7 +59,7 @@ export default function Chat({ stage }) {
                 size={'lg'}
                 placeholder="..."
                 rightSection={
-                    <IconSend size="1.5rem" onB onClick={() => sendMessage()} />
+                    <IconSend size="1.5rem" onClick={() => sendMessage()} />
                 }
             />
         </Flex >
