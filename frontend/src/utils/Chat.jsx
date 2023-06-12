@@ -17,11 +17,11 @@ export default function Chat({ stage }) {
         let rmsg = new Message('How are you feeling after the work you have just done? Do you want to share anything about how you are feeling?', 'CocoBot')
         switch (stage) {
             case 'ChatAfter':
-                rmsg = new Message('How are you feeling after the work you have just done? Do you want to share anything about how you are feeling?', 'CocoBot')
+                rmsg = new Message("Hey! How are you feeling? Let's talk about something less serious with your colleague.\nIf you could have one superpower what would it be?", 'CocoBot')
                 return (<ChatMessage message={rmsg} />)
                 break;
             case 'ChatDuring':
-                rmsg = new Message('How are you feeling during the work you are doing? Do you want to share anything about how you are feeling?', 'CocoBot')
+                rmsg = new Message('How are you doing with your task? Anything out of the box?', 'CocoBot')
                 return (<ChatMessage message={rmsg} />)
                 break;
             case _:
