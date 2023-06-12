@@ -150,7 +150,7 @@ export function Idle({ endStage, stages, currentStage }) {
                 </> :
                 <Text>You can rest a little before starting the next stage.</Text>
             }
-            <Button maw={'25%'} onClick={endStage}>End</Button>
+            {/* <Button maw={'25%'} onClick={endStage}>End</Button> */}
         </Flex>
     )
 }
