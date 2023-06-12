@@ -14,8 +14,8 @@ export default function SessionProvider(props) {
         }
     }, [])
 
-    function createUser(user_code, display_name, state) {
-        const user = new User(user_code, display_name, state)
+    function createUser(user_code, display_name, session_code, state) {
+        const user = new User(user_code, display_name, session_code, state)
         console.log(user)
         user.toSessionStorage()
         setUser(user)
@@ -30,9 +30,10 @@ export default function SessionProvider(props) {
 }
 
 class User {
-    constructor(user_code, display_name, state) {
+    constructor(user_code, display_name, session_code, state) {
         this.user_code = user_code
         this.display_name = display_name
+        this.session_code = session_code
         this.state = state
     }
 
@@ -47,7 +48,7 @@ class User {
 
     static fromJSON(json) {
 
-        return new User(json.user_code, json.display_name, json.state)
+        return new User(json.user_code, json.display_name, json.session_code, json.state)
     }
 
 

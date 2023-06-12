@@ -9,6 +9,7 @@ import Instructions from './pages/Instructions'
 import { useEffect } from 'react'
 import CloudStoreProvider from './providers/CloudStoreProvider'
 import { Notifications } from '@mantine/notifications'
+import ChatProvider from './providers/ChatProvider'
 
 export const states = {
   Instructions: 'Instructions',
@@ -40,12 +41,8 @@ function App() {
         return <Instructions setCurrentState={setCurrentState} />
       case states.Onboarding:
         return <Onboarding setCurrentState={setCurrentState} />
-      case states.IntakeSurvey:
-        return <IntakeSurvey setCurrentState={setCurrentState} />
       case states.MainTask:
         return <MainTask setCurrentState={setCurrentState} />
-      case states.ExitSurvey:
-        return <ExitSurvey setCurrentState={setCurrentState} />
       default:
         return <Instructions />
     }
@@ -54,8 +51,10 @@ function App() {
   return (
     <>
       <CloudStoreProvider>
-        <Notifications />
-        {renderState()}
+        <ChatProvider >
+          <Notifications limit={10} />
+          {renderState()}
+        </ChatProvider>
       </CloudStoreProvider>
     </>
 

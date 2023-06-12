@@ -1,0 +1,4 @@
+id,type,timeLimit,breakTime
+0,BaseLine,15,5
+1,ChatAfter,15,5
+2,ChatDuring,15,5
