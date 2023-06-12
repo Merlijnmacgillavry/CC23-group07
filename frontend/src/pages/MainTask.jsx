@@ -283,7 +283,7 @@ export default function MainTask({ setCurrentState }) {
                 })
             }).catch((error) => {
                 console.log(error)
-                notifications.update('reporting', {
+                notifications.update({
                     id: 'reporting',
                     title: 'Error saving report',
                     message: 'Please try again',
