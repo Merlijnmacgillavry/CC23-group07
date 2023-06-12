@@ -1,5 +1,5 @@
 import React from 'react'
-import { Group, Header, Image, RingProgress, Text, Title, AspectRatio, Divider, Button } from '@mantine/core'
+import { Group, Badge, RingProgress, Text, Title, AspectRatio, Divider, Button, Flex, ActionIcon } from '@mantine/core'
 import getTasks from '../utils/getTasks';
 import getStages from '../utils/getStages';
 import { useEffect } from 'react';
@@ -11,12 +11,12 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { Timer } from '../utils/timer';
 import Chat from '../utils/Chat';
 import { StageTypes } from '../utils/getStages';
-export const explicitCategories = [
-    'Sex',
-    'Violence',
-    'Drugs',
-    'Language'
-]
+export const explicitCategories = {
+    'Sex': 'blue',
+    'Violence': 'green',
+    'Drugs': 'yellow',
+    'Language': 'red'
+}
 
 const stageModes = {
     Ready: 'Ready',
@@ -31,12 +31,33 @@ export function Ready({ startStage }) {
         </Group>
     )
 }
-
-export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExplicitContent, stages, currentStage }) {
+export function RemoveButton({ category, removeReport, categories }) {
+    return (
+        <ActionIcon size="xs" color={categories[category]} radius="xl" variant="transparent">
+            <IconX size={'md'} onClick={removeReport(category)} />
+        </ActionIcon>
+    )
+}
+export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExplicitContent, stages, currentStage, finalReport, setFinalReport }) {
     const [categories, setCategories] = React.useState(explicitCategories);
-    const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
-
     let currentTaskIndex = currentTask % 3;
+
+    function addReport(category) {
+        setFinalReport((prev) => {
+            let newSet = new Set(prev);
+            newSet.add(category);
+            return newSet;
+        })
+    }
+    function removeReport(category) {
+        setFinalReport((prev) => {
+            let newSet = new Set(prev);
+            newSet.delete(category);
+            return newSet;
+        })
+    }
+
+
 
     let opts = {
         height: '100%',
@@ -51,25 +72,52 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
         },
     }
 
+    function report(category) {
+        if (!finalReport.has(category)) {
+            addReport(category);
+        }
+        reportExplicitContent(tasks[currentTask]?.[0], category);
+    }
+
+    function removeButton(color, category) {
+        return (
+            <ActionIcon size="xs" color={color} radius="xl" variant="transparent">
+                <IconX size={'10rem'} onClick={() => removeReport(category)} />
+            </ActionIcon>
+        );
+    }
+
+
     return (
         <div className='task'>
             <div className='left'>
-                <Title order={2} color='pink.4' ta={'left'} mb='md'>{tasks[currentTaskIndex]?.[2]} - {tasks[currentTaskIndex]?.[3]}</Title>
+                <Flex align={'center'} justify={'space-between'} direction={'row'}>
+                    <Title order={2} color='pink.4' align='center' ta={'left'} >{tasks[currentTaskIndex]?.[2]} - {tasks[currentTaskIndex]?.[3]}</Title>
+                    <Group align={'center'}>
+                        {[...finalReport].map((category, index) => {
+                            return (
+                                <Badge key={index} color={categories[category]} rightSection={removeButton(categories[category], category)}>
+                                    {category}
+                                </Badge>
+                            )
+                        })}
+                    </Group>
+                </Flex>
                 <AspectRatio ratio={16 / 9}  >
                     <Youtube width='100%' videoId={tasks[currentTaskIndex]?.[4]} opts={opts} onReady={(event) => registerPlayer(event)} onEnd={nextTask} />
                 </AspectRatio>
                 <Group position='left' py={'sm'}>
-                    {categories.map((category, index) => {
+                    {Object.entries(categories).map(([k, v], index) => {
                         return (
                             <Button
-                                key={category}
-                                color={buttonColors[index]}
+                                key={k}
+                                color={v}
                                 radius="md"
                                 size="lg"
                                 style={{ margin: '5px' }}
-                                onClick={() => reportExplicitContent(tasks[currentTask]?.[0], category)}
+                                onClick={() => report(k)}
                             >
-                                {category}
+                                {k}
                             </Button>
                         )
                     })}
@@ -102,6 +150,8 @@ export function Idle({ endStage, stages, currentStage }) {
 }
 
 export default function MainTask({ setCurrentState }) {
+    const [finalReport, setFinalReport] = React.useState(new Set());
+
     const [stages, setStages] = React.useState([]);
     const [currentStage, setCurrentStage] = React.useState(0);
     const [currentTask, setCurrentTask] = React.useState(0);
@@ -111,7 +161,6 @@ export default function MainTask({ setCurrentState }) {
     const [buttonColors, setButtonColors] = React.useState(pickRandomColors());
     const [categories, setCategories] = React.useState(explicitCategories);
     const [player, setPlayer] = React.useState(null);
-    const [reports, setReports] = React.useState([]);
     const cloudStore = useCloudStore();
 
 
@@ -141,39 +190,14 @@ export default function MainTask({ setCurrentState }) {
 
     function nextTask() {
         const tasks = stages[currentStage].tasks;
-        console.log(tasks)
-        console.log(currentTask)
         if ((currentTask % 3) + 1 === tasks.length) {
-            notifications.show({
-                id: 'saving-reports',
-                title: 'Saving reports',
-                message: 'Please wait...',
-                loading: true,
-                autoClose: false,
-            })
-            cloudStore.saveReports(reports).then(() => {
-                console.log('saved reports')
-                notifications.update('saving-reports', {
-                    title: 'Saved reports',
-                    loading: false,
-                    icon: <IconCheck size="1rem" />,
-                    color: 'green',
-                    autoClose: 2000,
-                })
-
-            }).catch((error) => {
-                console.log(error)
-                notifications.update('saving-reports', {
-                    title: 'Error saving reports',
-                    message: 'Please try again',
-                    loading: false,
-                    color: 'red',
-                    icon: <IconX size="1rem" />,
-                    autoClose: 2000,
-                })
-            })
             endTasks();
         }
+        cloudStore.saveFinalReport(finalReport, currentTask).then(() => {
+            setFinalReport(new Set());
+        }).catch((error) => {
+            console.log(error)
+        })
         setButtonColors(pickRandomColors());
         setCategories(shuffleArray(explicitCategories));
         setCurrentTask(currentTask + 1);
@@ -221,7 +245,8 @@ export default function MainTask({ setCurrentState }) {
             message: `You reported ${explicitCategory} content`,
             icon: <IconCheck size="1rem" />,
             color: 'green',
-            autoClose: 2000,
+            loading: true,
+            autoClose: false,
         })
         getCurrentTimeStampOfVideo().then((time) => {
             const data = {
@@ -229,10 +254,32 @@ export default function MainTask({ setCurrentState }) {
                 timeStamp: time,
                 explicitCategory: explicitCategory
             }
-            setReports((reports) => [...reports, data])
+            cloudStore.saveReport(data).then(() => {
+                notifications.update({
+                    id: 'reporting',
+                    title: 'Saved report',
+                    message: `You reported ${explicitCategory} content`,
+                    loading: false,
+                    icon: <IconCheck size="1rem" />,
+                    color: 'green',
+                    autoClose: 1000,
+                })
+            }).catch((error) => {
+                console.log(error)
+                notifications.update('reporting', {
+                    id: 'reporting',
+                    title: 'Error saving report',
+                    message: 'Please try again',
+                    loading: false,
+                    color: 'red',
+                    icon: <IconX size="1rem" />,
+                    autoClose: 1000,
+                })
+            })
         }).catch((error) => {
             console.log(error)
         })
+
 
     }
 
@@ -241,7 +288,7 @@ export default function MainTask({ setCurrentState }) {
             case stageModes.Ready:
                 return <Ready startStage={() => startStage()} />
             case stageModes.Tasks:
-                return <Tasks tasks={stages[currentStage].tasks} nextTask={() => nextTask()} currentTask={currentTask} registerPlayer={registerPlayer} reportExplicitContent={reportExplicitContent} stages={stages} currentStage={currentStage} />
+                return <Tasks tasks={stages[currentStage].tasks} nextTask={nextTask} currentTask={currentTask} registerPlayer={registerPlayer} reportExplicitContent={reportExplicitContent} stages={stages} currentStage={currentStage} finalReport={finalReport} setFinalReport={setFinalReport} />
             case stageModes.Idle:
                 return <Idle endStage={() => endStage()} stages={stages} currentStage={currentStage} />
             default:

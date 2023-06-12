@@ -52,7 +52,7 @@ function App() {
     <>
       <CloudStoreProvider>
         <ChatProvider >
-          <Notifications />
+          <Notifications limit={10} />
           {renderState()}
         </ChatProvider>
       </CloudStoreProvider>

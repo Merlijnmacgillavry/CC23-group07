@@ -1,21 +1,38 @@
 import React from 'react'
 import { useSession } from './SessionProvider'
 import { db } from '../firebaseConfig'
-import { setDoc, doc } from 'firebase/firestore'
+import { setDoc, doc, getDoc } from 'firebase/firestore'
 
 const CloudStoreContext = React.createContext()
 export const useCloudStore = () => React.useContext(CloudStoreContext)
 
 export default function CloudStoreProvider(props) {
     const sessionContext = useSession()
+    const [reports, setReports] = React.useState([])
 
-    async function saveReports(reports) {
+    async function saveFinalReport(finalReport, task_id) {
+        console.log(finalReport, task_id)
+        try {
+            const reportsRef = doc(db, 'Finalreport', sessionContext.user.user_code, "tasks", task_id.toString())
+            await setDoc(reportsRef, {
+                finalReport: [...finalReport].map((explicit) => ({ explicit }))
+            })
+        }
+        catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function saveReport(report) {
         // save tasks to firestore
         try {
             const reportsRef = doc(db, 'reports', sessionContext.user.user_code)
-            console.log(reports)
+            const reportsDoc = await getDoc(reportsRef)
+            const existingReports = reportsDoc.exists() ? reportsDoc.data().reports : []
+            const updatedReports = [...existingReports, report]
             await setDoc(reportsRef, {
-                reports: reports.map((task) => ({ ...task }))
+                reports: updatedReports.map((task) => ({ ...task }))
             }
             )
         }
@@ -43,7 +60,7 @@ export default function CloudStoreProvider(props) {
 
 
     return (
-        <CloudStoreContext.Provider value={{ saveSurvey, saveReports }}>
+        <CloudStoreContext.Provider value={{ saveSurvey, saveReport, saveFinalReport }}>
             {props.children}
         </CloudStoreContext.Provider>
     )

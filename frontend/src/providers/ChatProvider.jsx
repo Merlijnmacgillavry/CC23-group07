@@ -38,7 +38,7 @@ export default function ChatProvider({ children }) {
             const unsub = onSnapshot(
                 doc(db, 'chats', sessionContext.user.session_code, 'stages', currentStage), (doc) => {
                     console.log(doc.data())
-                    setMessages(doc.data().messages)
+                    setMessages(doc.data())
                 })
             return () => unsub()
         }
