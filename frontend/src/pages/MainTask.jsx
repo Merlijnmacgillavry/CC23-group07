@@ -142,7 +142,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
 export function Idle({ endStage, stages, currentStage }) {
     return (
         <Flex position="center" align={'center'} gap={'1em'} direction="column" spacing="lg">
-            <Title order={1} w>Break Time!</Title>
+            <Title order={1} >Break Time!</Title>
             {stages[currentStage].type === StageTypes.ChatAfter ?
                 <>
                     <Text>You can discuss your feelings with your colleagues</Text>
@@ -328,7 +328,7 @@ export default function MainTask({ setCurrentState }) {
                         }
                     />
                     {stageDeadline &&
-                        <Timer deadline={stageDeadline} timeUp={timeUp} startBreak={startBreak} />
+                        <Timer deadline={stageDeadline} timeUp={timeUp} startBreak={startBreak} breakTime={stages[currentStage].breakTime}/>
                     }
                 </Group>
                 <Title order={1} color='pink.4' >CoCoMo</Title>
