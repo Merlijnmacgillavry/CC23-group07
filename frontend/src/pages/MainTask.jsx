@@ -76,7 +76,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
         if (!finalReport.has(category)) {
             addReport(category);
         }
-        reportExplicitContent(tasks[currentTask]?.[0], category);
+        reportExplicitContent(currentTask, category);
     }
 
     function removeButton(color, category) {
@@ -121,7 +121,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                             </Button>
                         )
                     })}
-                    <Button
+                    {/* <Button
                         color={'pink'}
                         radius="md"
                         size="lg"
@@ -129,7 +129,7 @@ export function Tasks({ tasks, currentTask, nextTask, registerPlayer, reportExpl
                         onClick={() => reportExplicitContent(tasks[currentTask]?.[0], 'Trigger')}
                     >
                         Trigger
-                    </Button>
+                    </Button> */}
                 </Group>
             </div>
             <div className="right">
@@ -150,7 +150,7 @@ export function Idle({ endStage, stages, currentStage }) {
                 </> :
                 <Text>You can rest a little before starting the next stage.</Text>
             }
-            <Button maw={'25%'} onClick={endStage}>End</Button>
+            {/* <Button maw={'25%'} onClick={endStage}>End</Button> */}
         </Flex>
     )
 }
@@ -172,7 +172,6 @@ export default function MainTask({ setCurrentState }) {
     useEffect(() => {
         getStages().then((stages) => {
             setStages(stages);
-            console.log(stages)
         }).catch((error) => {
             console.log(error);
         });
@@ -183,7 +182,6 @@ export default function MainTask({ setCurrentState }) {
         currentDate.setMinutes(currentDate.getMinutes() + parseInt((stages[currentStage].timeLimit)))
         setStageDeadline(currentDate);
         setMode(stageModes.Tasks);
-        console.log("start stage", stages[currentStage].tasks[0][0])
         setCurrentTask(parseInt(stages[currentStage].tasks[0][0]) - 1);
     }
 
@@ -283,7 +281,7 @@ export default function MainTask({ setCurrentState }) {
                 })
             }).catch((error) => {
                 console.log(error)
-                notifications.update('reporting', {
+                notifications.update({
                     id: 'reporting',
                     title: 'Error saving report',
                     message: 'Please try again',

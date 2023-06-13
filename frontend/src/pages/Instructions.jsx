@@ -1,8 +1,10 @@
 import React from 'react'
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
-import { Button, Text, Title, Modal, Flex, Paper, List, Checkbox } from '@mantine/core'
+import { Button, Text, Title, Modal, Flex, Paper, List, Checkbox, Image, Center } from '@mantine/core'
 import { states } from '../App'
+import { Carousel } from '@mantine/carousel';
+
 export default function Instructions({ setCurrentState }) {
     const [opened, { open, close }] = useDisclosure(false)
     const [accepted, setAccepted] = React.useState(false)
@@ -25,9 +27,108 @@ export default function Instructions({ setCurrentState }) {
                 {accepted && <Button onClick={() => setCurrentState(states.Onboarding)} variant="gradient" gradient={{ from: 'teal', to: 'lime', deg: 105 }} >Start work</Button>
                 }
             </Flex>
-            <Modal opened={opened} onClose={close} title="Instructions" centered size={'auto'}>
-                <ExplicitContentGuidelines />
+            <Modal opened={opened} onClose={close} title="Instructions" centered size={'100%'}>
+                <Carousel slideSize={'100%'} maw={'100%'} withIndicators height={'80vh'}>
+                    <Carousel.Slide><InstructionsS1 /></Carousel.Slide>
+                    <Carousel.Slide><InstructionsS2 /></Carousel.Slide>
+                    <Carousel.Slide><InstructionsS3 /></Carousel.Slide>
+                    <Carousel.Slide><InstructionsS4 /></Carousel.Slide>
+                    <Carousel.Slide><InstructionsS5 /></Carousel.Slide>
+                    {/* ...other slides */}
+                </Carousel>
             </Modal></>
+    )
+}
+function InstructionsS2() {
+    return (
+        <Center>
+            <Image maw={'50vw'} src="./I-Board.png" alt="Application view" />
+        </Center>
+    )
+}
+function InstructionsS3() {
+    return (
+        <Center>
+            <Image maw={'50vw'} src="./I-Controls.png" alt="Controls explanation" caption="Playback controls for videos"
+            />
+        </Center>
+    )
+}
+function InstructionsS5() {
+    return (
+        <Center>
+            <Image maw={'50vw'} src="./I-Chat.png" alt="Controls explanation"
+            />
+        </Center>
+    )
+}
+
+
+function InstructionsS1() {
+    return (
+        <Paper padding="md" >
+            <List>
+                <List.Item>
+                    <Text>Once you click “Start work” after reading the instructions you will be asked to fill an onboarding form consisting of three fields which need to be filled by you:</Text>
+                    <List>
+                        <List.Item>User code: enter code provided by us</List.Item>
+                        <List.Item>Username: Any name you prefer (you will be identified by other people by this name)</List.Item>
+                        <List.Item>Session code: enter code provided by us</List.Item>
+                    </List>
+
+                </List.Item>
+                <List.Item>
+                    <Text>The actual tasks begin now. The task consists of three phases</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>Each phase will be active for 15 minutes in total, this includes 5 minutes of break time</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>In each phase you are required to monitor and label explicit content possibly present in three videos, these types of explicit can be:</Text>
+                    <List>
+                        <List.Item>Sex</List.Item>
+                        <List.Item>Violence</List.Item>
+                        <List.Item>Drugs</List.Item>
+                        <List.Item>Language</List.Item>
+                    </List>
+                </List.Item>
+                <List.Item>
+                    <Text>Find an overview of the application in the next slide!</Text>
+                </List.Item>
+            </List>
+        </Paper>
+    )
+}
+function InstructionsS4() {
+    return (
+        <Paper padding="md" >
+            <List>
+                <List.Item>
+                    <Text>Once done with the first phase, there will be a break of 5 minutes. A break screen will be presented to you</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>If you finish your first task early, you will still be directed to the break screen where you can wait to start the next task</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>You will be prompted to start the second phase post the 5mins. The first break allows you to sit back and relax and no action is needed</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>You will perform the same task in the second phase as the first</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>During the second 5minute break (after second phase), you can additionally use the chat functionality to text your peer</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>The next slide contains a picture of the break screen with chat</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>Once 5 minutes break is completed, you will be directed to the third phase where you will perform the same activity. However now you can chat with you peer during the task</Text>
+                </List.Item>
+                <List.Item>
+                    <Text>Once you complete all three phases. The experiment ends</Text>
+                </List.Item>
+            </List>
+        </Paper>
     )
 }
 

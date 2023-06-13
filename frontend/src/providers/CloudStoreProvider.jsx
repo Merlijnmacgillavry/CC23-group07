@@ -11,7 +11,6 @@ export default function CloudStoreProvider(props) {
     const [reports, setReports] = React.useState([])
 
     async function saveFinalReport(finalReport, task_id) {
-        console.log(finalReport, task_id)
         try {
             const reportsRef = doc(db, 'Finalreport', sessionContext.user.user_code, "tasks", task_id.toString())
             await setDoc(reportsRef, {
