@@ -81,9 +81,7 @@ function InstructionsS1() {
                     <Text>The actual tasks begin now. The task consists of three phases</Text>
                 </List.Item>
                 <List.Item>
-                    <Text>PHASE 1: 10 min video 1 min break</Text>
-                    <Text>PHASE 2: 10 min video 5 min break</Text>
-                    <Text>PHASE 3: 10 min video Finished</Text>
+                    <Text>Each phase will be active for 15 minutes in total, this includes 5 minutes of break time</Text>
                 </List.Item>
                 <List.Item>
                     <Text>In each phase you are required to monitor and label explicit content possibly present in three videos, these types of explicit can be:</Text>
