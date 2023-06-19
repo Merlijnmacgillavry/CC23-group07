@@ -31,8 +31,8 @@ export default function Onboarding({ setCurrentState }) {
             icon: <IconCheck size="1rem" />,
             autoClose: 2000,
         })
-        createUser(values.user_code, values.display_name, values.session_code, states.MainTask)
-        setCurrentState(states.MainTask)
+        createUser(values.user_code, values.display_name, values.session_code, states.IntakeSurvey)
+        setCurrentState(states.IntakeSurvey)
     }
 
     return (
