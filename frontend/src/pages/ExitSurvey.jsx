@@ -35,7 +35,8 @@ export default function ExitSurvey({ setCurrentState }) {
         })
         cloudStore.saveSurvey(values, 'exitSurvey').then(() => {
             console.log('saved survey')
-            notifications.update('saving-exit-survey', {
+            notifications.update({
+                id: 'saving-exit-survey',
                 title: 'Saved exit survey',
                 loading: false,
                 icon: <IconCheck size="1rem" />,
@@ -44,7 +45,8 @@ export default function ExitSurvey({ setCurrentState }) {
             })
         }).catch((error) => {
             console.log(error)
-            notifications.update('saving-exit-survey', {
+            notifications.update({
+                id: 'saving-exit-survey',
                 title: 'Error saving exit survey',
                 message: 'Please try again',
                 loading: false,

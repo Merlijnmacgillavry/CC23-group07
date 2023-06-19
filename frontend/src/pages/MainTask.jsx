@@ -218,7 +218,7 @@ export default function MainTask({ setCurrentState }) {
     }
     function endStage() {
         if (currentStage + 1 === stages.length) {
-            setCurrentState(states.Instructions)
+            setCurrentState(states.ExitSurvey)
         }
         setCurrentStage(currentStage + 1);
         setMode(stageModes.Ready)
@@ -328,7 +328,7 @@ export default function MainTask({ setCurrentState }) {
                         }
                     />
                     {stageDeadline &&
-                        <Timer deadline={stageDeadline} timeUp={timeUp} startBreak={startBreak} breakTime={stages[currentStage].breakTime}/>
+                        <Timer deadline={stageDeadline} timeUp={timeUp} startBreak={startBreak} breakTime={stages[currentStage].breakTime} />
                     }
                 </Group>
                 <Title order={1} color='pink.4' >CoCoMo</Title>
