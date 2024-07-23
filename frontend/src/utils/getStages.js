@@ -12,7 +12,7 @@ async function getStages() {
         const tasks = await getTasks();
         const result = [];
         for (const parsedStage of parsedStages) {
-            let stage = new Stage(parsedStage[0], parsedStage[1], parsedStage[2], getTasksForStage(parsedStage[0], tasks));
+            let stage = new Stage(parsedStage[0], parsedStage[1], parsedStage[2], getTasksForStage(parsedStage[0], tasks), parsedStage[3]);
             result.push(stage);
         }
         return result
@@ -36,7 +36,7 @@ export const StageTypes = {
 }
 
 class Stage {
-    constructor(id, type, timeLimit, tasks) {
+    constructor(id, type, timeLimit, tasks, breakTime) {
         this.id = id;
         switch (type) {
             case StageTypes.BaseLine:
@@ -54,5 +54,6 @@ class Stage {
         }
         this.timeLimit = timeLimit;
         this.tasks = tasks
+        this.breakTime = breakTime
     }
 }

@@ -36,7 +36,8 @@ export default function IntakeSurvey({ setCurrentState }) {
         })
         cloudStore.saveSurvey(values, 'intakeSurvey').then(() => {
             console.log('saved intake survey')
-            notifications.update('saving-intake-survey', {
+            notifications.update({
+                id: 'saving-intake-survey',
                 title: 'Saved intake survey',
                 loading: false,
                 icon: <IconCheck size="1rem" />,
@@ -46,7 +47,8 @@ export default function IntakeSurvey({ setCurrentState }) {
 
         }).catch((error) => {
             console.log(error)
-            notifications.update('saving-intake-survey', {
+            notifications.update({
+                id: 'saving-intake-survey',
                 title: 'Error saving intake survey',
                 message: 'Please try again',
                 loading: false,
